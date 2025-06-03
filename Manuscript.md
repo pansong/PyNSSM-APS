@@ -17,7 +17,7 @@ The remainder of this paper is organized as follows: Section 2 introduces the ne
 Vehicle dynamics are formulated within a state-space architecture, comprising a state equation and an output equation. Due to the inherent complexity and gaps in domain knowledge, these equations often cannot be simplified into straightforward analytical forms. To address this challenge, the NSS model is introduced, leveraging neural networks to represent these dynamics.
 
 <div align="center">
-  <img src="pic/Fig1.jpg" alt="Figure 1" style="width: 7cm;">
+  <img src="pic/Fig1.jpg" alt="Figure 1" style="width: 10cm;">
   <br>
   <strong>Figure.1 Architecture of NSS model for automated parking systems</strong>
 </div>
@@ -85,7 +85,7 @@ For practical deployment, the state network consists of six hidden layers ($`l=6
 To train the NSS model, the researchers conducted testing and data collection using a test vehicle, as illustrated in Figure 2. The vehicle operated under the automated parking system on a flat surface in an underground garage. The testing protocol included four types of left and right parking in/out maneuvers. Each maneuver was performed four times, resulting in a total of 16 trials. From each set of four, one trial was selected for the validation set, thus dividing the data into 12 trials for the training set and 4 trials for the validation set.
 
 <div align="center">
-  <img src="pic/Fig2.jpg" alt="Figure 2" style="width: 7cm;">
+  <img src="pic/Fig2.jpg" alt="Figure 2" style="width: 10cm;">
   <br>
   <strong>Figure.2 Test vehicle – the Exeed Sterra ES by Chery</strong>
 </div>
@@ -95,7 +95,7 @@ Ground truth values for the state variables were measured by the wheel speed sen
 Figure 3 illustrates the scatter plot of the field test data, segmented into the training set and the validation set. The overlap in data distribution between both sets is evident. As mentioned earlier, it is noteworthy from the upper part of the figure that the display of vehicle state data reveals an absence of data ranging from 0 to 0.5625 km/h, attributed to limitations of the wheel speed sensors.
 
 <div align="center">
-  <img src="pic/Fig3.jpg" alt="Figure 3" style="width: 7cm;">
+  <img src="pic/Fig3.jpg" alt="Figure 3" style="width: 10cm;">
   <br>
   <strong>Figure.3 Scatter plot of field test data</strong>
 </div>
@@ -110,7 +110,7 @@ The simulation runs at a time step of 0.01 seconds, using control commands from 
 Figure 4 illustrates the evolution of training loss over 32,000 epochs for the state and output networks. Initially, the state network exhibits a more rapid decline in training loss compared to the output network, resulting in a lower loss for the state network. However, as training progresses beyond the initial phase, the rate of decrease in training loss becomes similar for both networks.
 
 <div align="center">
-  <img src="pic/Fig4.jpg" alt="Figure 4" style="width: 7cm;">
+  <img src="pic/Fig4.jpg" alt="Figure 4" style="width: 10cm;">
   <br>
   <strong>Figure.4 Training loss evolution for state and output networks</strong>
 </div>
@@ -118,13 +118,13 @@ Figure 4 illustrates the evolution of training loss over 32,000 epochs for the s
 The training progress for the state and output networks spans a total of 19.16 hours, involving 12 dedicated trials. To structure the training set effectively, these trials are truncated into multiple distinct segments. This approach enhances parallel computation efficiency but reduces the number of time steps per segment, potentially impacting the NSS model’s long-term prediction robustness. To mitigate this, preprocessing standardizes each series by aligning them to the shortest series through initial truncation and, if necessary, additional end truncation. This balances computational efficiency with the preservation of sequential integrity, which is essential for maintaining model accuracy.
 
 <div align="center">
-  <img src="pic/Fig5.jpg" alt="Figure 5" style="width: 7cm;">
+  <img src="pic/Fig5.jpg" alt="Figure 5" style="width: 10cm;">
   <br>
   <strong>Figure.5 Experimental and simulated data of automatic parking-out maneuver</strong>
 </div>
 
 <div align="center">
-  <img src="pic/Fig6.jpg" alt="Figure 6" style="width: 7cm;">
+  <img src="pic/Fig6.jpg" alt="Figure 6" style="width: 10cm;">
   <br>
   <strong>Figure.6 Experimental and simulated data of automatic parking-in maneuver</strong>
 </div>
@@ -134,7 +134,7 @@ The NSS model is validated using original, untruncated datasets to assess its ac
 These comparisons reveal the model’s adeptness in filtering and delineating dynamic responses, even during transitions in drive modes, as demonstrated in Figure 5. Furthermore, the proposed kinematics-based state limiter ensures that vehicle speeds remain within reasonable limits, facilitates a seamless transition of yaw rate near zero longitudinal velocity, and accommodates deviations from the reference yaw rate at higher speeds due to vehicle dynamics.
 
 <div align="center">
-  <img src="pic/Fig7.jpg" alt="Figure 7" style="width: 7cm;">
+  <img src="pic/Fig7.jpg" alt="Figure 7" style="width: 10cm;">
   <br>
   <strong>Figure.7 MSE and MAE metrics of scaled vehicle dynamics variables</strong>
 </div>
