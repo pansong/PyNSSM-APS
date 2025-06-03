@@ -16,10 +16,11 @@ The remainder of this paper is organized as follows: Section 2 introduces the ne
 ## 2 Neural State-Space Modeling
 Vehicle dynamics are formulated within a state-space architecture, comprising a state equation and an output equation. Due to the inherent complexity and gaps in domain knowledge, these equations often cannot be simplified into straightforward analytical forms. To address this challenge, the NSS model is introduced, leveraging neural networks to represent these dynamics.
 
-<center>
-    <img src="pic/Fig1.jpg" alt="Figure 1">
-    <p>Figure.1 Architecture of NSS model for automated parking systems</p>
-</center>
+<div align="center">
+  <img src="pic/Fig1.jpg" alt="Figure 1">
+  <br>
+  <strong>Figure.1 Architecture of NSS model for automated parking systems</strong>
+</div>
 
 Figure 1 depicts the schematic of the NSS model’s architecture, specifically designed for automated parking systems. The model features a dual-network structure consisting of a state network and an output network. Each network is configured as a fully connected feedforward MLP.
 
@@ -84,19 +85,21 @@ For practical deployment, the state network consists of six hidden layers ($l=6$
 ## 3 Testing Design
 To train the NSS model, the researchers conducted testing and data collection using a test vehicle, as illustrated in Figure 2. The vehicle operated under the automated parking system on a flat surface in an underground garage. The testing protocol included four types of left and right parking in/out maneuvers. Each maneuver was performed four times, resulting in a total of 16 trials. From each set of four, one trial was selected for the validation set, thus dividing the data into 12 trials for the training set and 4 trials for the validation set.
 
-<center>
-    <img src="pic/Fig2.jpg" alt="Figure 2">
-    <p>Figure.2 Test vehicle – the Exeed Sterra ES by Chery</p>
-</center>
+<div align="center">
+  <img src="pic/Fig2.jpg" alt="Figure 2">
+  <br>
+  <strong>Figure.2 Test vehicle – the Exeed Sterra ES by Chery</strong>
+</div>
 
 Ground truth values for the state variables were measured by the wheel speed sensors and the yaw rate sensor in the ESP system, and the output values were obtained from the acceleration sensors in the ACU. These signals were captured from the test vehicle’s CAN-FD network using a CAN analyzer. This setup replicates real-world conditions, where controllers rely solely on onboard sensor data for real-time decisions, ensuring greater simulation fidelity.
 
 Figure 3 illustrates the scatter plot of the field test data, segmented into the training set and the validation set. The overlap in data distribution between both sets is evident. As mentioned earlier, it is noteworthy from the upper part of the figure that the display of vehicle state data reveals an absence of data ranging from 0 to 0.5625 km/h, attributed to limitations of the wheel speed sensors.
 
-<center>
-    <img src="pic/Fig3.jpg" alt="Figure 3">
-    <p>Figure.3 Scatter plot of field test data</p>
-</center>
+<div align="center">
+  <img src="pic/Fig3.jpg" alt="Figure 3">
+  <br>
+  <strong>Figure.3 Scatter plot of field test data</strong>
+</div>
 
 The training and inference were conducted on ThinkPad P16 Gen 1, equipped with a 12th Gen Intel Core i7-12800HX CPU and an NVIDIA RTX A4500 Laptop GPU, operating on Ubuntu 20.04. The NSS model was developed and tested using Python, with neural networks implemented in PyTorch, providing a flexible and efficient machine learning framework.
 
@@ -107,31 +110,35 @@ The simulation runs at a time step of 0.01 seconds, using control commands from 
 ## 4 Results and Discussion
 Figure 4 illustrates the evolution of training loss over 32,000 epochs for the state and output networks. Initially, the state network exhibits a more rapid decline in training loss compared to the output network, resulting in a lower loss for the state network. However, as training progresses beyond the initial phase, the rate of decrease in training loss becomes similar for both networks.
 
-<center>
-    <img src="pic/Fig4.jpg" alt="Figure 4">
-    <p>Figure.4 Training loss evolution for state and output networks</p>
-</center>
+<div align="center">
+  <img src="pic/Fig4.jpg" alt="Figure 4">
+  <br>
+  <strong>Figure.4 Training loss evolution for state and output networks</strong>
+</div>
 
 The training progress for the state and output networks spans a total of 19.16 hours, involving 12 dedicated trials. To structure the training set effectively, these trials are truncated into multiple distinct segments. This approach enhances parallel computation efficiency but reduces the number of time steps per segment, potentially impacting the NSS model’s long-term prediction robustness. To mitigate this, preprocessing standardizes each series by aligning them to the shortest series through initial truncation and, if necessary, additional end truncation. This balances computational efficiency with the preservation of sequential integrity, which is essential for maintaining model accuracy.
 
-<center>
-    <img src="pic/Fig5.jpg" alt="Figure 5">
-    <p>Figure.5 Experimental and simulated data of automatic parking-out maneuver</p>
-</center>
+<div align="center">
+  <img src="pic/Fig5.jpg" alt="Figure 5">
+  <br>
+  <strong>Figure.5 Experimental and simulated data of automatic parking-out maneuver</strong>
+</div>
 
-<center>
-    <img src="pic/Fig6.jpg" alt="Figure 6">
-    <p>Figure.6 Experimental and simulated data of automatic parking-in maneuver</p>
-</center>
+<div align="center">
+  <img src="pic/Fig6.jpg" alt="Figure 6">
+  <br>
+  <strong>Figure.6 Experimental and simulated data of automatic parking-in maneuver</strong>
+</div>
 
 The NSS model is validated using original, untruncated datasets to assess its accuracy. Figures 5 and 6 illustrate discrepancies and alignments between experimental and simulated vehicle dynamic variables during two selected maneuvers in the validation set. Both the experimental and simulation results derive from identical control inputs, generated by the parking assistance controller within the test vehicle during the field test. This setup ensures direct comparisons of vehicle dynamics under real-world and simulated conditions.
 
 These comparisons reveal the model’s adeptness in filtering and delineating dynamic responses, even during transitions in drive modes, as demonstrated in Figure 5. Furthermore, the proposed kinematics-based state limiter ensures that vehicle speeds remain within reasonable limits, facilitates a seamless transition of yaw rate near zero longitudinal velocity, and accommodates deviations from the reference yaw rate at higher speeds due to vehicle dynamics.
 
-<center>
-    <img src="pic/Fig7.jpg" alt="Figure 7">
-    <p>Figure.7 MSE and MAE metrics of scaled vehicle dynamics variables</p>
-</center>
+<div align="center">
+  <img src="pic/Fig7.jpg" alt="Figure 7">
+  <br>
+  <strong>Figure.7 MSE and MAE metrics of scaled vehicle dynamics variables</strong>
+</div>
 
 Figure 7 presents the MSE and MAE metrics for the vehicle dynamics variables scaled to the $[-1,1]$ range across the training and validation sets, showcasing the model’s generalization capabilities. The figure is divided into two sections: the left side displays the MSE results, and the right side shows the MAE results. Both metrics compare the results from the original, untruncated training set with those from the validation set.
 
