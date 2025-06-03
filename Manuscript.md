@@ -27,7 +27,11 @@ Figure 1 depicts the schematic of the NSS model’s architecture, specifically d
 The left MLP functions as the state network, computing the time derivative of the predicted vehicle state, formulated as:
 
 ```math
-\frac{\mathrm{d}\hat{\mathbf{x}}(t)}{\mathrm{d}t} = \mathbf{W}_{\mathrm{s}}^{[l]} \sigma _{\mathrm{s}}^{[l-1]} \left( \cdots \sigma _{\mathrm{s}}^{[0]} \left ( \mathbf{W}_{\mathrm{s}}^{[0]} \begin{bmatrix} \hat{\mathbf{x}}(t) & \mathbf{u}(t) & d(t) \end{bmatrix}^{\mathrm{T}} + \mathbf{b}_{\mathrm{s}}^{[0]} \right) \cdots \right) + \mathbf{b}_{\mathrm{s}}^{[l]} \tag{1}
+\frac{\mathrm{d}\hat{\mathbf{x}}(t)}{\mathrm{d}t} = \mathbf{W}_{\mathrm{s}}^{[l]} \sigma _{\mathrm{s}}^{[l-1]} \left( \cdots \sigma _{\mathrm{s}}^{[0]} \left ( \mathbf{W}_{\mathrm{s}}^{[0]} \begin{bmatrix} \hat{\mathbf{x}}(t) & \mathbf{u}(t) & d(t) \end{bmatrix}^{\mathrm{T}} + \mathbf{b}_{\mathrm{s}}^{[0]} \right) \cdots \right) + \mathbf{b}_{\mathrm{s}}^{[l]}
+```
+
+```math
+\frac{\mathrm{d}\hat{\mathbf{x}}(t)}{\mathrm{d}t} = \mathbf{W}_{\mathrm{s}}^{[l]} \sigma _{\mathrm{s}}^{[l-1]} \left( \cdots \sigma _{\mathrm{s}}^{[0]} \left ( \mathbf{W}_{\mathrm{s}}^{[0]} \begin{bmatrix} \hat{\mathbf{x}}(t) & \mathbf{u}(t) & d(t) \end{bmatrix}^{\mathrm{T}} + \mathbf{b}_{\mathrm{s}}^{[0]} \right) \cdots \right) + \mathbf{b}_{\mathrm{s}}^{[l]}\tag{1}
 ```
 
 $$
