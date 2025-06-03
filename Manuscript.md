@@ -26,36 +26,26 @@ Figure 1 depicts the schematic of the NSS model’s architecture, specifically d
 
 The left MLP functions as the state network, computing the time derivative of the predicted vehicle state, formulated as:
 
+**Eq.1:**
 ```math
 \frac{\mathrm{d}\hat{\mathbf{x}}(t)}{\mathrm{d}t} = \mathbf{W}_{\mathrm{s}}^{[l]} \sigma _{\mathrm{s}}^{[l-1]} \left( \cdots \sigma _{\mathrm{s}}^{[0]} \left ( \mathbf{W}_{\mathrm{s}}^{[0]} \begin{bmatrix} \hat{\mathbf{x}}(t) & \mathbf{u}(t) & d(t) \end{bmatrix}^{\mathrm{T}} + \mathbf{b}_{\mathrm{s}}^{[0]} \right) \cdots \right) + \mathbf{b}_{\mathrm{s}}^{[l]}
 ```
-
-```math
-\frac{\mathrm{d}\hat{\mathbf{x}}(t)}{\mathrm{d}t} = \mathbf{W}_{\mathrm{s}}^{[l]} \sigma _{\mathrm{s}}^{[l-1]} \left( \cdots \sigma _{\mathrm{s}}^{[0]} \left ( \mathbf{W}_{\mathrm{s}}^{[0]} \begin{bmatrix} \hat{\mathbf{x}}(t) & \mathbf{u}(t) & d(t) \end{bmatrix}^{\mathrm{T}} + \mathbf{b}_{\mathrm{s}}^{[0]} \right) \cdots \right) + \mathbf{b}_{\mathrm{s}}^{[l]}\tag{1}
-```
-
-$$
-	\frac{\mathrm{d}\hat{\mathbf{x}}(t)}{\mathrm{d}t} = \mathbf{W}_{\mathrm{s}}^{[l]} \sigma _{\mathrm{s}}^{[l-1]} \left( \cdots \sigma _{\mathrm{s}}^{[0]} \left ( \mathbf{W}_{\mathrm{s}}^{[0]} \begin{bmatrix} \hat{\mathbf{x}}(t) & \mathbf{u}(t) & d(t) \end{bmatrix}^{\mathrm{T}} + \mathbf{b}_{\mathrm{s}}^{[0]} \right) \cdots \right) + \mathbf{b}_{\mathrm{s}}^{[l]}
-    \tag{1}
-$$
-
 where the state prediction vector is given by $\hat{\mathbf{x}} = \begin{bmatrix} \hat{V}_x & \hat{\dot{\psi}} \end{bmatrix}$, comprising the predictions of the longitudinal velocity $V_x$ and the yaw rate $\dot{\psi}$; the input vector is defined as $\mathbf{u} = \begin{bmatrix} \alpha_{\mathrm{accel}} & \beta_{\mathrm{decel}} & \delta_{\mathrm{sw}}\end{bmatrix}$, which represents the acceleration and deceleration commands issued by the ESP system, and the steering wheel angle commands issued by the EPS system; $d$ denotes the explicit drive mode during an automated parking process, where $d=0$ represents neutral or park, $d=1$ drive, and $d=-1$ indicates reverse; $\mathbf{W}_{\mathrm{s}}^{[i]}$ and $\mathbf{b}_{\mathrm{s}}^{[i]}$ are the weight matrices and the bias vectors, respectively, for the $i$-th layer of the state network, where $i=0,1,\dots,l$; $\sigma _{\mathrm{s}}^{[i]}(\cdot)$ represents the activation function for the i-th layer of the state network.
 
 The integration of the derived state prediction over time allows the prediction of the next state vector at time $t+\Delta{t}$ by:
 
-$$
-	\hat{\mathbf{x}}(t+\Delta{t}) = \hat{\mathbf{x}}(t) + \int_{t}^{t+\Delta{t}} \frac{\mathrm{d}\hat{\mathbf{x}}(t)}{\mathrm{d}t} \cdot \mathrm{d}{t}
-    \tag{2}
-$$
-
+**Eq.2:**
+```math
+\hat{\mathbf{x}}(t+\Delta{t}) = \hat{\mathbf{x}}(t) + \int_{t}^{t+\Delta{t}} \frac{\mathrm{d}\hat{\mathbf{x}}(t)}{\mathrm{d}t} \cdot \mathrm{d}{t}
+```
 Subsequently, $\hat{\mathbf{x}}(t+\Delta{t})$  is fed through a memory block, reverting to $\hat{\mathbf{x}}(t)$ for use as an input in the state network and the forthcoming output network. This feedback loop ensures continuous updating of predictions. Additionally, the other inputs $\mathbf{u}$ and $d$ are utilized only at the current time $t$, without consideration of past or future inputs, to meet the requirements for online X-in-the-loop simulation.
 
 However, the future state prediction is not directly output as calculated by the above integration. Instead, a state limiter constrains $\hat{V}_x$ within a range determined by gear selection. Additionally, the kinematics equation is employed to calculate the ideal yaw rate from $\hat{V}_x$ and $\delta_{\mathrm{sw}}$:
 
-$$
-	\dot{\psi}_{\mathrm{ref}} = \frac{\hat{V}_x}{L} \cdot \tan \left( \frac{\delta_{\mathrm{sw}}}{i_{\mathrm{sw}}} \right)
-    \tag{3}
-$$
+**Eq.3:**
+```math
+\dot{\psi}_{\mathrm{ref}} = \frac{\hat{V}_x}{L} \cdot \tan \left( \frac{\delta_{\mathrm{sw}}}{i_{\mathrm{sw}}} \right)
+```
 
 where $L$ is the wheelbase of the car, and $i_{\mathrm{sw}}$ is the steering ratio.
 
@@ -63,28 +53,29 @@ The limiter adjusts the ideal yaw rate prediction by adding an adjustable margin
 
 The right MLP functions as the output network, designed to generate the output vector prediction $\hat{\mathbf{y}}$. While this network operates independently from the state network, it utilizes the state predictions computed by the state network for the current time step:
 
-$$
-	\hat{\mathbf{y}}(t) = \mathbf{W}_{\mathrm{o}}^{[k]} \sigma _{\mathrm{o}}^{[k-1]} \left( \cdots \sigma _{\mathrm{o}}^{[0]} \left ( \mathbf{W}_{\mathrm{o}}^{[0]} \begin{bmatrix} \hat{\mathbf{x}}(t) & \mathbf{u}(t) \end{bmatrix}^{\mathrm{T}} + \mathbf{b}_{\mathrm{o}}^{[0]} \right) \cdots \right) + \mathbf{b}_{\mathrm{o}}^{[k]}
-    \tag{4}
-$$
+**Eq.4:**
+```math
+\hat{\mathbf{y}}(t) = \mathbf{W}_{\mathrm{o}}^{[k]} \sigma _{\mathrm{o}}^{[k-1]} \left( \cdots \sigma _{\mathrm{o}}^{[0]} \left ( \mathbf{W}_{\mathrm{o}}^{[0]} \begin{bmatrix} \hat{\mathbf{x}}(t) & \mathbf{u}(t) \end{bmatrix}^{\mathrm{T}} + \mathbf{b}_{\mathrm{o}}^{[0]} \right) \cdots \right) + \mathbf{b}_{\mathrm{o}}^{[k]}
+
+```
 
 where the output prediction vector is given by $\hat{\mathbf{y}} = \begin{bmatrix} \hat{a}_x & \hat{a}_y \end{bmatrix}$, comprising the predictions of the longitudinal and lateral accelerations. The subscript ‘o’ in the variables $\mathbf{W}_{\mathrm{o}}^{[k]}$, $\mathbf{b}_{\mathrm{o}}^{[k]}$, and $\sigma _{\mathrm{o}}^{[k-1]}$ denotes their association with the output network. Note that, in this configuration, the output network does not consider the drive mode $d$ in its computations.
 
 The training approach optimizes the state and output networks independently using the L1 loss (MAE), which minimizes the average magnitude of errors between actual and predicted values. The loss function for the output network $\mathcal{L}_{\mathrm{o}}$ is expressed as:
 
-$$
-	\mathcal{L}_{\mathrm{o}} = \frac{1}{NT} \sum_{j=1}^{N} \sum_{t=0}^{T}  \left \| \mathbf{y}_j(t) - \hat{\mathbf{y}}_j(t) \right \| _1
-    \tag{5}
-$$
+**Eq.5:**
+```math
+\mathcal{L}_{\mathrm{o}} = \frac{1}{NT} \sum_{j=1}^{N} \sum_{t=0}^{T}  \left \| \mathbf{y}_j(t) - \hat{\mathbf{y}}_j(t) \right \| _1
+```
 
 where $N$ denotes the batch size and $T$ represents the number of time steps per sample.
 
 Due to limitations with the wheel speed sensor, which cannot accurately capture extremely low speeds (below 0.5 km/h) and shows abrupt drops to zero or sudden jumps from zero to this threshold, the model may encounter issues with velocity fitting. To address this, the loss function for the state network, $\mathcal{L}_{\mathrm{s}}$, excludes training data from these extremely low speeds by creating masked datasets $\mathbf{x}^*$ and $\hat{\mathbf{x}}^*$, and then calculates the loss as:
 
-$$
-	\mathcal{L}_{\mathrm{s}} = \frac{1}{NT} \sum_{j=1}^{N} \sum_{t=0}^{T}  \left \| \mathbf{x}_j^*(t) - \hat{\mathbf{x}}_j^*(t) \right \| _1
-    \tag{6}
-$$
+**Eq.6:**
+```math
+\mathcal{L}_{\mathrm{s}} = \frac{1}{NT} \sum_{j=1}^{N} \sum_{t=0}^{T}  \left \| \mathbf{x}_j^*(t) - \hat{\mathbf{x}}_j^*(t) \right \| _1
+```
 
 This adjustment helps improve the accuracy of state prediction by focusing on reliable data points.
 
