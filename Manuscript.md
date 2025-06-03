@@ -30,28 +30,28 @@ The left MLP functions as the state network, computing the time derivative of th
 ```math
 \frac{\mathrm{d}\hat{\mathbf{x}}(t)}{\mathrm{d}t} = \mathbf{W}_{\mathrm{s}}^{[l]} \sigma _{\mathrm{s}}^{[l-1]} \left( \cdots \sigma _{\mathrm{s}}^{[0]} \left ( \mathbf{W}_{\mathrm{s}}^{[0]} \begin{bmatrix} \hat{\mathbf{x}}(t) & \mathbf{u}(t) & d(t) \end{bmatrix}^{\mathrm{T}} + \mathbf{b}_{\mathrm{s}}^{[0]} \right) \cdots \right) + \mathbf{b}_{\mathrm{s}}^{[l]}
 ```
-where the state prediction vector is given by $`\hat{\mathbf{x}} = \begin{bmatrix} \hat{V}_x & \hat{\dot{\psi}} \end{bmatrix}`$, comprising the predictions of the longitudinal velocity $V_x$ and the yaw rate $\dot{\psi}$; the input vector is defined as $`\mathbf{u} = \begin{bmatrix} \alpha_{\mathrm{accel}} & \beta_{\mathrm{decel}} & \delta_{\mathrm{sw}}\end{bmatrix}`$, which represents the acceleration and deceleration commands issued by the ESP system, and the steering wheel angle commands issued by the EPS system; $`d`$ denotes the explicit drive mode during an automated parking process, where $`d=0`$ represents neutral or park, $`d=1`$ drive, and $`d=-1`$ indicates reverse; $`\mathbf{W}_{\mathrm{s}}^{[i]}`$ and $`\mathbf{b}_{\mathrm{s}}^{[i]}`$ are the weight matrices and the bias vectors, respectively, for the $`i`$-th layer of the state network, where $`i=0,1,\dots,l`$; $`\sigma _{\mathrm{s}}^{[i]}(\cdot)`$ represents the activation function for the i-th layer of the state network.
+where the state prediction vector is given by $`\hat{\mathbf{x}} = \begin{bmatrix} \hat{V}_x & \hat{\dot{\psi}} \end{bmatrix}`$, comprising the predictions of the longitudinal velocity $`V_x`$ and the yaw rate $`\dot{\psi}`$; the input vector is defined as $`\mathbf{u} = \begin{bmatrix} \alpha_{\mathrm{accel}} & \beta_{\mathrm{decel}} & \delta_{\mathrm{sw}}\end{bmatrix}`$, which represents the acceleration and deceleration commands issued by the ESP system, and the steering wheel angle commands issued by the EPS system; $`d`$ denotes the explicit drive mode during an automated parking process, where $`d=0`$ represents neutral or park, $`d=1`$ drive, and $`d=-1`$ indicates reverse; $`\mathbf{W}_{\mathrm{s}}^{[i]}`$ and $`\mathbf{b}_{\mathrm{s}}^{[i]}`$ are the weight matrices and the bias vectors, respectively, for the $`i`$-th layer of the state network, where $`i=0,1,\dots,l`$; $`\sigma _{\mathrm{s}}^{[i]}(\cdot)`$ represents the activation function for the $`i`$-th layer of the state network.
 
-The integration of the derived state prediction over time allows the prediction of the next state vector at time $t+\Delta{t}$ by:
+The integration of the derived state prediction over time allows the prediction of the next state vector at time $`t+\Delta{t}`$ by:
 
 **Eq.2:**
 ```math
 \hat{\mathbf{x}}(t+\Delta{t}) = \hat{\mathbf{x}}(t) + \int_{t}^{t+\Delta{t}} \frac{\mathrm{d}\hat{\mathbf{x}}(t)}{\mathrm{d}t} \cdot \mathrm{d}{t}
 ```
-Subsequently, $\hat{\mathbf{x}}(t+\Delta{t})$  is fed through a memory block, reverting to $\hat{\mathbf{x}}(t)$ for use as an input in the state network and the forthcoming output network. This feedback loop ensures continuous updating of predictions. Additionally, the other inputs $\mathbf{u}$ and $d$ are utilized only at the current time $t$, without consideration of past or future inputs, to meet the requirements for online X-in-the-loop simulation.
+Subsequently, $`\hat{\mathbf{x}}(t+\Delta{t})`$  is fed through a memory block, reverting to $\hat{\mathbf{x}}(t)$ for use as an input in the state network and the forthcoming output network. This feedback loop ensures continuous updating of predictions. Additionally, the other inputs $`\mathbf{u}`$ and $`d`$ are utilized only at the current time $`t`$, without consideration of past or future inputs, to meet the requirements for online X-in-the-loop simulation.
 
-However, the future state prediction is not directly output as calculated by the above integration. Instead, a state limiter constrains $\hat{V}_x$ within a range determined by gear selection. Additionally, the kinematics equation is employed to calculate the ideal yaw rate from $\hat{V}_x$ and $\delta_{\mathrm{sw}}$:
+However, the future state prediction is not directly output as calculated by the above integration. Instead, a state limiter constrains $`\hat{V}_x`$ within a range determined by gear selection. Additionally, the kinematics equation is employed to calculate the ideal yaw rate from $`\hat{V}_x`$ and $`\delta_{\mathrm{sw}}`$:
 
 **Eq.3:**
 ```math
 \dot{\psi}_{\mathrm{ref}} = \frac{\hat{V}_x}{L} \cdot \tan \left( \frac{\delta_{\mathrm{sw}}}{i_{\mathrm{sw}}} \right)
 ```
 
-where $L$ is the wheelbase of the car, and $i_{\mathrm{sw}}$ is the steering ratio.
+where $L$ is the wheelbase of the car, and $`i_{\mathrm{sw}}`$ is the steering ratio.
 
-The limiter adjusts the ideal yaw rate prediction by adding an adjustable margin of tolerance $\eta=0.2$, which ensures that the yaw rate remains within bounds derived from the above kinematic calculation. Note that this limiter is applied only during the inference phase and is not used during the training process.
+The limiter adjusts the ideal yaw rate prediction by adding an adjustable margin of tolerance $`\eta=0.2`$, which ensures that the yaw rate remains within bounds derived from the above kinematic calculation. Note that this limiter is applied only during the inference phase and is not used during the training process.
 
-The right MLP functions as the output network, designed to generate the output vector prediction $\hat{\mathbf{y}}$. While this network operates independently from the state network, it utilizes the state predictions computed by the state network for the current time step:
+The right MLP functions as the output network, designed to generate the output vector prediction $`\hat{\mathbf{y}}`$. While this network operates independently from the state network, it utilizes the state predictions computed by the state network for the current time step:
 
 **Eq.4:**
 ```math
@@ -59,18 +59,18 @@ The right MLP functions as the output network, designed to generate the output v
 
 ```
 
-where the output prediction vector is given by $\hat{\mathbf{y}} = \begin{bmatrix} \hat{a}_x & \hat{a}_y \end{bmatrix}$, comprising the predictions of the longitudinal and lateral accelerations. The subscript ‘o’ in the variables $\mathbf{W}_{\mathrm{o}}^{[k]}$, $\mathbf{b}_{\mathrm{o}}^{[k]}$, and $\sigma _{\mathrm{o}}^{[k-1]}$ denotes their association with the output network. Note that, in this configuration, the output network does not consider the drive mode $d$ in its computations.
+where the output prediction vector is given by $`\hat{\mathbf{y}} = \begin{bmatrix} \hat{a}_x & \hat{a}_y \end{bmatrix}`$, comprising the predictions of the longitudinal and lateral accelerations. The subscript ‘o’ in the variables $`\mathbf{W}_{\mathrm{o}}^{[k]}`$, $`\mathbf{b}_{\mathrm{o}}^{[k]}`$, and $`\sigma _{\mathrm{o}}^{[k-1]}`$ denotes their association with the output network. Note that, in this configuration, the output network does not consider the drive mode $`d`$ in its computations.
 
-The training approach optimizes the state and output networks independently using the L1 loss (MAE), which minimizes the average magnitude of errors between actual and predicted values. The loss function for the output network $\mathcal{L}_{\mathrm{o}}$ is expressed as:
+The training approach optimizes the state and output networks independently using the L1 loss (MAE), which minimizes the average magnitude of errors between actual and predicted values. The loss function for the output network $`\mathcal{L}_{\mathrm{o}}`$ is expressed as:
 
 **Eq.5:**
 ```math
 \mathcal{L}_{\mathrm{o}} = \frac{1}{NT} \sum_{j=1}^{N} \sum_{t=0}^{T}  \left \| \mathbf{y}_j(t) - \hat{\mathbf{y}}_j(t) \right \| _1
 ```
 
-where $N$ denotes the batch size and $T$ represents the number of time steps per sample.
+where $`N`$ denotes the batch size and $`T`$ represents the number of time steps per sample.
 
-Due to limitations with the wheel speed sensor, which cannot accurately capture extremely low speeds (below 0.5 km/h) and shows abrupt drops to zero or sudden jumps from zero to this threshold, the model may encounter issues with velocity fitting. To address this, the loss function for the state network, $\mathcal{L}_{\mathrm{s}}$, excludes training data from these extremely low speeds by creating masked datasets $\mathbf{x}^*$ and $\hat{\mathbf{x}}^*$, and then calculates the loss as:
+Due to limitations with the wheel speed sensor, which cannot accurately capture extremely low speeds (below 0.5 km/h) and shows abrupt drops to zero or sudden jumps from zero to this threshold, the model may encounter issues with velocity fitting. To address this, the loss function for the state network, $`\mathcal{L}_{\mathrm{s}}`$, excludes training data from these extremely low speeds by creating masked datasets $`\mathbf{x}^*`$ and $`\hat{\mathbf{x}}^*`$, and then calculates the loss as:
 
 **Eq.6:**
 ```math
@@ -79,7 +79,7 @@ Due to limitations with the wheel speed sensor, which cannot accurately capture 
 
 This adjustment helps improve the accuracy of state prediction by focusing on reliable data points.
 
-For practical deployment, the state network consists of six hidden layers ($l=6$) and the output network comprises three hidden layers ($k=3$), each populated with 64 neurons. The hyperbolic tangent ($\tanh$) activation function is employed across both networks. Additionally, min-max scaling is applied to scale the states, inputs, and outputs to the $[-1,1]$ interval to align with the activation function’s range.
+For practical deployment, the state network consists of six hidden layers ($`l=6`$) and the output network comprises three hidden layers ($`k=3`$), each populated with 64 neurons. The hyperbolic tangent ($`\tanh`$) activation function is employed across both networks. Additionally, min-max scaling is applied to scale the states, inputs, and outputs to the $`[-1,1]`$ interval to align with the activation function’s range.
 
 ## 3 Testing Design
 To train the NSS model, the researchers conducted testing and data collection using a test vehicle, as illustrated in Figure 2. The vehicle operated under the automated parking system on a flat surface in an underground garage. The testing protocol included four types of left and right parking in/out maneuvers. Each maneuver was performed four times, resulting in a total of 16 trials. From each set of four, one trial was selected for the validation set, thus dividing the data into 12 trials for the training set and 4 trials for the validation set.
@@ -102,9 +102,9 @@ Figure 3 illustrates the scatter plot of the field test data, segmented into the
 
 The training and inference were conducted on ThinkPad P16 Gen 1, equipped with a 12th Gen Intel Core i7-12800HX CPU and an NVIDIA RTX A4500 Laptop GPU, operating on Ubuntu 20.04. The NSS model was developed and tested using Python, with neural networks implemented in PyTorch, providing a flexible and efficient machine learning framework.
 
-Training was performed using the Adam optimizer, tailored for noisy field test data by employing a small learning rate of $5×10^{-5}$ and a high epoch count of 32,000 to effectively minimize noise amplification in the loss function.
+Training was performed using the Adam optimizer, tailored for noisy field test data by employing a small learning rate of $`5×10^{-5}`$ and a high epoch count of 32,000 to effectively minimize noise amplification in the loss function.
 
-The simulation runs at a time step of 0.01 seconds, using control commands from untruncated field test data as inputs. Starting with the initial state $\hat{\mathbf{x}}(0)=\mathbf{x}(0)$, the NSS model operates in an open-loop configuration to predict subsequent states and outputs, with no feedback correction during inference.
+The simulation runs at a time step of 0.01 seconds, using control commands from untruncated field test data as inputs. Starting with the initial state $`\hat{\mathbf{x}}(0)=\mathbf{x}(0)`$, the NSS model operates in an open-loop configuration to predict subsequent states and outputs, with no feedback correction during inference.
 
 ## 4 Results and Discussion
 Figure 4 illustrates the evolution of training loss over 32,000 epochs for the state and output networks. Initially, the state network exhibits a more rapid decline in training loss compared to the output network, resulting in a lower loss for the state network. However, as training progresses beyond the initial phase, the rate of decrease in training loss becomes similar for both networks.
@@ -139,11 +139,11 @@ These comparisons reveal the model’s adeptness in filtering and delineating dy
   <strong>Figure.7 MSE and MAE metrics of scaled vehicle dynamics variables</strong>
 </div>
 
-Figure 7 presents the MSE and MAE metrics for the vehicle dynamics variables scaled to the $[-1,1]$ range across the training and validation sets, showcasing the model’s generalization capabilities. The figure is divided into two sections: the left side displays the MSE results, and the right side shows the MAE results. Both metrics compare the results from the original, untruncated training set with those from the validation set.
+Figure 7 presents the MSE and MAE metrics for the vehicle dynamics variables scaled to the $`[-1,1]`$ range across the training and validation sets, showcasing the model’s generalization capabilities. The figure is divided into two sections: the left side displays the MSE results, and the right side shows the MAE results. Both metrics compare the results from the original, untruncated training set with those from the validation set.
 
 It is evident that both metrics exhibit a proportional increase in the validation set, likely due to the reduced data volume used for validation. Specifically, the complete dataset consists of 16 trials, with 12 allocated for training and 4 for validation, indicating the necessity of incorporating a more varied dataset for enhanced accuracy.
 
-Notable discrepancies in $\hat{V}_x$ can be attributed to the training strategy, where extremely low vehicle speeds are masked, yet evaluations utilize the original, unmasked data. Meanwhile, the larger errors observed in $\hat{a}_y$ are primarily a result from the inherently low magnitude of lateral accelerations during automated parking maneuvers (see Figure 3), leading to a higher signal-to-noise ratio.
+Notable discrepancies in $`\hat{V}_x`$ can be attributed to the training strategy, where extremely low vehicle speeds are masked, yet evaluations utilize the original, unmasked data. Meanwhile, the larger errors observed in $`\hat{a}_y`$ are primarily a result from the inherently low magnitude of lateral accelerations during automated parking maneuvers (see Figure 3), leading to a higher signal-to-noise ratio.
 
 ## 5 Conclusions
 This study introduces a NSS model for automated parking control, which effectively simulates vehicle dynamics through a data-driven approach. Validated through field testing, the model accurately represents both longitudinal and lateral dynamics, ensuring robust long-term prediction capabilities. Additionally, it incorporates a kinematics-based state limiter that facilitates seamless transition between drive modes and mitigates anomalies during simulations.
