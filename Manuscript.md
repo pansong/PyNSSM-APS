@@ -31,6 +31,9 @@ The left MLP functions as the state network, computing the time derivative of th
 \frac{\mathrm{d}\hat{\mathbf{x}}(t)}{\mathrm{d}t} = \mathbf{W}_{\mathrm{s}}^{[l]} \sigma _{\mathrm{s}}^{[l-1]} \left( \cdots \sigma _{\mathrm{s}}^{[0]} \left ( \mathbf{W}_{\mathrm{s}}^{[0]} \begin{bmatrix} \hat{\mathbf{x}}(t) & \mathbf{u}(t) & d(t) \end{bmatrix}^{\mathrm{T}} + \mathbf{b}_{\mathrm{s}}^{[0]} \right) \cdots \right) + \mathbf{b}_{\mathrm{s}}^{[l]}
 ```
 
+where the state prediction vector is given by $`\hat{\mathbf{x}} = \begin{bmatrix} \hat{V}_x \\ \hat{\dot{\psi}} \end{bmatrix}`$, comprising the predictions of the longitudinal velocity $`V_x`$ and the yaw rate $`\dot{\psi}`$; the input vector is defined as $`\mathbf{u} = \begin{bmatrix} \alpha_{\mathrm{accel}} \\ \beta_{\mathrm{decel}} \\ \delta_{\mathrm{sw}}\end{bmatrix}`$, which represents the acceleration and deceleration commands issued by the ESP system, and the steering wheel angle commands issued by the EPS system; $`d`$ denotes the explicit drive mode during an automated parking process, where $`d=0`$ represents neutral or park, $`d=1`$ drive, and $`d=-1`$ indicates reverse; $`\mathbf{W}_{\mathrm{s}}^{[i]}`$ and $`\mathbf{b}_{\mathrm{s}}^{[i]}`$ are the weight matrices and the bias vectors, respectively, for the $`i`$-th layer of the state network, where $`i=0,1,\dots,l`$; $`\sigma_{\mathrm{s}}^{[i]}(\cdot)`$ represents the activation function for the $`i`$-th layer of the state network.
+
+
 where the state prediction vector is given by 
 ```math
 hat{\mathbf{x}} = \begin{bmatrix} \hat{V}_x & \hat{\dot{\psi}} \end{bmatrix}
