@@ -37,7 +37,8 @@ hat{\mathbf{x}} = \begin{bmatrix} \hat{V}_x & \hat{\dot{\psi}} \end{bmatrix}
 ```
 , comprising the predictions of the longitudinal velocity $V_x$ and the yaw rate $\dot{\psi}$; the input vector is defined as 
 ```math
-\mathbf{u} = \begin{bmatrix} \alpha_{\mathrm{accel}} & \beta_{\mathrm{decel}} & \delta_{\mathrm{sw}}\end{bmatrix}```
+\mathbf{u} = \begin{bmatrix} \alpha_{\mathrm{accel}} & \beta_{\mathrm{decel}} & \delta_{\mathrm{sw}}\end{bmatrix}
+```
 , which represents the acceleration and deceleration commands issued by the ESP system, and the steering wheel angle commands issued by the EPS system; $d$ denotes the explicit drive mode during an automated parking process, where $d=0$ represents neutral or park, $d=1$ drive, and $d=-1$ indicates reverse; $\mathbf{W}_{\mathrm{s}}^{[i]}$ and $\mathbf{b}_{\mathrm{s}}^{[i]}$ are the weight matrices and the bias vectors, respectively, for the $i$-th layer of the state network, where $i=0,1,\dots,l$; $\sigma _{\mathrm{s}}^{[i]}(\cdot)$ represents the activation function for the i-th layer of the state network.
 
 The integration of the derived state prediction over time allows the prediction of the next state vector at time $t+\Delta{t}$ by:
